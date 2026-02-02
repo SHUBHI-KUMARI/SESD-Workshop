@@ -1,5 +1,6 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
 import routes from './routes';
+import { errorHandler } from './middlewares';
 
 class App {
   public app: Application;
@@ -28,9 +29,12 @@ class App {
 
   private initializeErrorHandling(): void {
     // 404 handler
-    this.app.use((req: Request, res: Response) => {
-      res.status(404).json({ error: 'Route not found' });
+    this.app.use((req: Request, res: Response, next: NextFunction) => {
+      res.status(404).json({ success: false, message: 'Route not found' });
     });
+
+    // Global error handler
+    this.app.use(errorHandler);
   }
 
   public getApp(): Application {
