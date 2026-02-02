@@ -25,7 +25,7 @@ export class BookController {
 
   public getBookById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       const book = await this.bookService.getBookById(id);
       res.status(200).json({
         success: true,
@@ -52,7 +52,7 @@ export class BookController {
 
   public updateBook = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       const updateData: IUpdateBook = req.body;
       const book = await this.bookService.updateBook(id, updateData);
       res.status(200).json({
@@ -67,7 +67,7 @@ export class BookController {
 
   public deleteBook = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       await this.bookService.deleteBook(id);
       res.status(200).json({
         success: true,
