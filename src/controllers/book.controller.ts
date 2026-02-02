@@ -1,0 +1,80 @@
+import { Request, Response, NextFunction } from 'express';
+import { BookService } from '../services';
+import { ICreateBook, IUpdateBook } from '../interfaces';
+
+export class BookController {
+  private bookService: BookService;
+
+  constructor(bookService: BookService) {
+    this.bookService = bookService;
+  }
+
+  public createBook = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const bookData: ICreateBook = req.body;
+      const book = await this.bookService.createBook(bookData);
+      res.status(201).json({
+        success: true,
+        message: 'Book created successfully',
+        data: book,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getBookById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const book = await this.bookService.getBookById(id);
+      res.status(200).json({
+        success: true,
+        data: book,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getAllBooks = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const books = await this.bookService.getAllBooks();
+      const count = await this.bookService.getBookCount();
+      res.status(200).json({
+        success: true,
+        count,
+        data: books,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public updateBook = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const updateData: IUpdateBook = req.body;
+      const book = await this.bookService.updateBook(id, updateData);
+      res.status(200).json({
+        success: true,
+        message: 'Book updated successfully',
+        data: book,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public deleteBook = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params;
+      await this.bookService.deleteBook(id);
+      res.status(200).json({
+        success: true,
+        message: 'Book deleted successfully',
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+}
