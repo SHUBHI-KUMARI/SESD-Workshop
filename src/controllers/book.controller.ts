@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { BookService } from '../services';
 import { ICreateBook, IUpdateBook } from '../interfaces';
+import { BookValidator } from '../utils';
 
 export class BookController {
   private bookService: BookService;
@@ -11,7 +12,7 @@ export class BookController {
 
   public createBook = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const bookData: ICreateBook = req.body;
+      const bookData = BookValidator.validateCreateBook(req.body);
       const book = await this.bookService.createBook(bookData);
       res.status(201).json({
         success: true,
@@ -26,6 +27,7 @@ export class BookController {
   public getBookById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const id = req.params.id as string;
+      BookValidator.validateId(id);
       const book = await this.bookService.getBookById(id);
       res.status(200).json({
         success: true,
@@ -53,7 +55,8 @@ export class BookController {
   public updateBook = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const id = req.params.id as string;
-      const updateData: IUpdateBook = req.body;
+      BookValidator.validateId(id);
+      const updateData = BookValidator.validateUpdateBook(req.body);
       const book = await this.bookService.updateBook(id, updateData);
       res.status(200).json({
         success: true,
@@ -68,6 +71,7 @@ export class BookController {
   public deleteBook = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const id = req.params.id as string;
+      BookValidator.validateId(id);
       await this.bookService.deleteBook(id);
       res.status(200).json({
         success: true,
