@@ -40,12 +40,11 @@ export class BookController {
 
   public getAllBooks = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const books = await this.bookService.getAllBooks();
-      const count = await this.bookService.getBookCount();
+      const queryParams = BookValidator.validateQueryParams(req.query as Record<string, unknown>);
+      const result = await this.bookService.getBooksWithQuery(queryParams);
       res.status(200).json({
         success: true,
-        count,
-        data: books,
+        ...result,
       });
     } catch (error) {
       next(error);

@@ -1,5 +1,5 @@
 import { BookRepository } from '../repositories';
-import { IBook, ICreateBook, IUpdateBook } from '../interfaces';
+import { IBook, ICreateBook, IUpdateBook, IQueryParams, IPaginatedResult } from '../interfaces';
 import { NotFoundError, ConflictError, BadRequestError } from '../utils';
 
 export class BookService {
@@ -29,6 +29,10 @@ export class BookService {
 
   public async getAllBooks(): Promise<IBook[]> {
     return this.bookRepository.findAll();
+  }
+
+  public async getBooksWithQuery(query: IQueryParams): Promise<IPaginatedResult<IBook>> {
+    return this.bookRepository.findWithQuery(query);
   }
 
   public async updateBook(id: string, data: IUpdateBook): Promise<IBook> {

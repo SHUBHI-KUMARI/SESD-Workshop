@@ -1,4 +1,4 @@
-import { ICreateBook, IUpdateBook } from '../interfaces';
+import { ICreateBook, IUpdateBook, IQueryParams } from '../interfaces';
 import { ValidationError } from './errors';
 
 export class BookValidator {
@@ -167,5 +167,128 @@ export class BookValidator {
     if (!id || typeof id !== 'string' || id.trim() === '') {
       throw new ValidationError(['ID is required and must be a non-empty string']);
     }
+  }
+
+  public static validateQueryParams(query: Record<string, unknown>): IQueryParams {
+    const validatedQuery: IQueryParams = {};
+    const errors: string[] = [];
+
+    // Pagination
+    if (query.page !== undefined) {
+      const page = Number(query.page);
+      if (isNaN(page) || page < 1 || !Number.isInteger(page)) {
+        errors.push('Page must be a positive integer');
+      } else {
+        validatedQuery.page = page;
+      }
+    }
+
+    if (query.limit !== undefined) {
+      const limit = Number(query.limit);
+      if (isNaN(limit) || limit < 1 || limit > 100 || !Number.isInteger(limit)) {
+        errors.push('Limit must be an integer between 1 and 100');
+      } else {
+        validatedQuery.limit = limit;
+      }
+    }
+
+    // Sorting
+    const allowedSortFields = ['title', 'author', 'genre', 'publishedYear', 'price', 'quantity', 'createdAt', 'updatedAt'];
+    if (query.sortBy !== undefined) {
+      if (typeof query.sortBy !== 'string' || !allowedSortFields.includes(query.sortBy)) {
+        errors.push(`sortBy must be one of: ${allowedSortFields.join(', ')}`);
+      } else {
+        validatedQuery.sortBy = query.sortBy;
+      }
+    }
+
+    if (query.sortOrder !== undefined) {
+      if (query.sortOrder !== 'asc' && query.sortOrder !== 'desc') {
+        errors.push('sortOrder must be either "asc" or "desc"');
+      } else {
+        validatedQuery.sortOrder = query.sortOrder;
+      }
+    }
+
+    // Search
+    if (query.search !== undefined) {
+      if (typeof query.search !== 'string') {
+        errors.push('Search must be a string');
+      } else {
+        validatedQuery.search = query.search.trim();
+      }
+    }
+
+    // Filters
+    if (query.genre !== undefined) {
+      if (typeof query.genre !== 'string') {
+        errors.push('Genre filter must be a string');
+      } else {
+        validatedQuery.genre = query.genre.trim();
+      }
+    }
+
+    if (query.author !== undefined) {
+      if (typeof query.author !== 'string') {
+        errors.push('Author filter must be a string');
+      } else {
+        validatedQuery.author = query.author.trim();
+      }
+    }
+
+    if (query.minPrice !== undefined) {
+      const minPrice = Number(query.minPrice);
+      if (isNaN(minPrice) || minPrice < 0) {
+        errors.push('minPrice must be a non-negative number');
+      } else {
+        validatedQuery.minPrice = minPrice;
+      }
+    }
+
+    if (query.maxPrice !== undefined) {
+      const maxPrice = Number(query.maxPrice);
+      if (isNaN(maxPrice) || maxPrice < 0) {
+        errors.push('maxPrice must be a non-negative number');
+      } else {
+        validatedQuery.maxPrice = maxPrice;
+      }
+    }
+
+    if (query.minYear !== undefined) {
+      const minYear = Number(query.minYear);
+      if (isNaN(minYear) || minYear < 1000) {
+        errors.push('minYear must be a valid year (>= 1000)');
+      } else {
+        validatedQuery.minYear = minYear;
+      }
+    }
+
+    if (query.maxYear !== undefined) {
+      const maxYear = Number(query.maxYear);
+      if (isNaN(maxYear) || maxYear > new Date().getFullYear()) {
+        errors.push(`maxYear must be a valid year (<= ${new Date().getFullYear()})`);
+      } else {
+        validatedQuery.maxYear = maxYear;
+      }
+    }
+
+    // Cross-field validation
+    if (validatedQuery.minPrice !== undefined && validatedQuery.maxPrice !== undefined) {
+      if (validatedQuery.minPrice > validatedQuery.maxPrice) {
+        errors.push('minPrice cannot be greater than maxPrice');
+      }
+    }
+
+    if (validatedQuery.minYear !== undefined && validatedQuery.maxYear !== undefined) {
+      if (validatedQuery.minYear > validatedQuery.maxYear) {
+        errors.push('minYear cannot be greater than maxYear');
+      }
+    }
+
+    if (errors.length > 0) {
+      throw new ValidationError(errors);
+    }
+
+    return validatedQuery;
   }
 }
