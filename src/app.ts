@@ -1,4 +1,5 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
+import routes from './routes';
 
 class App {
   public app: Application;
@@ -20,6 +21,9 @@ class App {
     this.app.get('/health', (req: Request, res: Response) => {
       res.status(200).json({ status: 'OK', message: 'Server is running' });
     });
+
+    // API routes
+    this.app.use('/api', routes);
   }
 
   private initializeErrorHandling(): void {
