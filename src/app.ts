@@ -1,4 +1,5 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
+import cors from 'cors';
 import routes from './routes';
 import { errorHandler, requestLogger } from './middlewares';
 
@@ -13,6 +14,7 @@ class App {
   }
 
   private initializeMiddlewares(): void {
+    this.app.use(cors());
     this.app.use(requestLogger);
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
