@@ -73,10 +73,11 @@ export class AuthService {
   }
 
   private generateToken(userId: string, role: string): string {
+    const expiresIn = this.jwtExpiresIn;
     return jwt.sign(
       { userId, role },
       this.jwtSecret,
-      { expiresIn: this.jwtExpiresIn }
+      { expiresIn: expiresIn as jwt.SignOptions['expiresIn'] }
     );
   }
 }
