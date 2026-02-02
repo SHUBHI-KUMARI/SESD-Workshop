@@ -1,6 +1,6 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
 import routes from './routes';
-import { errorHandler } from './middlewares';
+import { errorHandler, requestLogger } from './middlewares';
 
 class App {
   public app: Application;
@@ -13,6 +13,7 @@ class App {
   }
 
   private initializeMiddlewares(): void {
+    this.app.use(requestLogger);
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
   }
